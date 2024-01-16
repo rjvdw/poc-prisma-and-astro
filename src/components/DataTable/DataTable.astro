@@ -1,0 +1,26 @@
+---
+import ResponsiveTableWrapper from './ResponsiveTableWrapper.astro'
+import Table from './Table.astro'
+
+type ResponsiveProps = { responsive?: false | undefined } | { responsive: true; nowrap?: boolean }
+
+type Props = ResponsiveProps
+---
+
+{
+  Astro.props.responsive ? (
+    <ResponsiveTableWrapper nowrap={Astro.props.nowrap}>
+      <Table>
+        <slot name="thead" slot="thead" />
+        <slot name="tfoot" slot="tfoot" />
+        <slot />
+      </Table>
+    </ResponsiveTableWrapper>
+  ) : (
+    <Table>
+      <slot name="thead" slot="thead" />
+      <slot name="tfoot" slot="tfoot" />
+      <slot />
+    </Table>
+  )
+}

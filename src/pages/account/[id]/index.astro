@@ -1,0 +1,28 @@
+---
+import ViewAccount from '$domain/account/ViewAccount.astro'
+import Layout from '$layouts/Base.astro'
+import { getResourceById } from '$lib/page-helpers'
+import { isValidUuid } from '$lib/uuid'
+
+const { id } = Astro.params
+const { accountService } = Astro.locals
+const account = await getResourceById(id, accountService.get, isValidUuid)
+---
+
+<Layout title="account">
+  <h1>Account</h1>
+
+  {
+    account instanceof Error ? (
+      <p>{account.message}</p>
+    ) : (
+      <>
+        <ViewAccount account={account} />
+
+        <p>
+          <a href={`/account/${id}/edit`}>Edit</a>
+        </p>
+      </>
+    )
+  }
+</Layout>

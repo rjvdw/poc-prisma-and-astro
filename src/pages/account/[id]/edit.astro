@@ -1,0 +1,71 @@
+---
+import ValidationErrorNotice from '$components/ValidationErrorNotice.astro'
+import type { AccountData } from '$domain/account/AccountService'
+import { AccountValidator } from '$domain/account/AccountValidator'
+import EditAccount from '$domain/account/EditAccount.astro'
+import Layout from '$layouts/Base.astro'
+import { isFailedUniqueConstraint } from '$lib/errors'
+import { getResourceById } from '$lib/page-helpers'
+import { isValidUuid } from '$lib/uuid'
+import { ValidationError, type UserInput } from '$lib/validation'
+
+const { id } = Astro.params
+const { accountService } = Astro.locals
+const account = await getResourceById(id, accountService.get, isValidUuid)
+let userInput: UserInput<AccountData> = {}
+let validationErrors: ValidationError[] = []
+
+if (!(account instanceof Error) && Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    if (formData.get('action') === 'delete') {
+      await accountService.delete(account.id)
+      return Astro.redirect('/account')
+    }
+
+    const validationResults = AccountValidator.parse(formData)
+    userInput = validationResults.userInput
+
+    if (validationResults.success) {
+      // @ts-ignore False positive (ts6133)
+      const saved = await accountService.update(account.id, validationResults.parsed)
+
+      return Astro.redirect(`/account/${saved.id}`)
+    }
+
+    validationErrors = validationResults.errors
+  } catch (err) {
+    let validationError = ValidationError.ofCaught(err)
+    if (isFailedUniqueConstraint(err, 'iban')) {
+      validationError = new ValidationError('iban', 'already exists')
+    }
+    validationErrors.push(validationError)
+  }
+}
+---
+
+<Layout title="account">
+  <h1>Account</h1>
+
+  {
+    account instanceof Error ? (
+      <p>{account.message}</p>
+    ) : (
+      <form method="post" action={`/account/${id}/edit`}>
+        <ValidationErrorNotice errors={validationErrors} />
+
+        <EditAccount account={account} userInput={userInput} />
+
+        <div class="form-controls">
+          <button class="primary" type="submit" name="action" value="update">
+            Update
+          </button>
+          <button class="danger" type="submit" name="action" value="delete" formnovalidate>
+            Delete
+          </button>
+        </div>
+      </form>
+    )
+  }
+</Layout>

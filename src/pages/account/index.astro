@@ -1,0 +1,41 @@
+---
+import Layout from '$layouts/Base.astro'
+import AccountLink from '$domain/account/AccountLink.astro'
+import DataTable from '$components/DataTable'
+import { formatIban } from '$lib/iban'
+
+const { accountService } = Astro.locals
+const accounts = await accountService.list()
+---
+
+<Layout title="accounts">
+  <h1>Accounts</h1>
+
+  {
+    accounts.length > 0 ? (
+      <DataTable responsive nowrap>
+        <tr slot="thead">
+          <th>Description</th>
+          <th>IBAN</th>
+          <th>Currency</th>
+          <th>Active</th>
+        </tr>
+
+        {accounts.map((account) => (
+          <tr>
+            <td>
+              <AccountLink account={account} />
+            </td>
+            <td>{account.iban ? formatIban(account.iban) : '-'}</td>
+            <td>{account.currency}</td>
+            <td>{account.active ? 'Yes' : 'No'}</td>
+          </tr>
+        ))}
+      </DataTable>
+    ) : (
+      <p>No accounts created yet</p>
+    )
+  }
+
+  <p><a href="/account/new">Create new account</a></p>
+</Layout>

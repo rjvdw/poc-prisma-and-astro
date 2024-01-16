@@ -1,0 +1,51 @@
+---
+import ValidationErrorNotice from '$components/ValidationErrorNotice.astro'
+import type { AccountData } from '$domain/account/AccountService'
+import { AccountValidator } from '$domain/account/AccountValidator'
+import EditAccount from '$domain/account/EditAccount.astro'
+import Layout from '$layouts/Base.astro'
+import { isFailedUniqueConstraint } from '$lib/errors'
+import { ValidationError, type UserInput } from '$lib/validation'
+
+const { accountService } = Astro.locals
+let userInput: UserInput<AccountData> = {}
+let validationErrors: ValidationError[] = []
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    const validationResults = AccountValidator.parse(formData)
+    userInput = validationResults.userInput
+
+    if (validationResults.success) {
+      // @ts-ignore False positive (ts6133)
+      const saved = await accountService.create(validationResults.parsed)
+
+      return Astro.redirect(`/account/${saved.id}`)
+    }
+
+    validationErrors = validationResults.errors
+  } catch (err) {
+    let validationError = ValidationError.ofCaught(err)
+    if (isFailedUniqueConstraint(err, 'iban')) {
+      validationError = new ValidationError('iban', 'already exists')
+    }
+    validationErrors.push(validationError)
+  }
+}
+---
+
+<Layout title="new account">
+  <h1>New Account</h1>
+
+  <form method="post" action="/account/new">
+    <ValidationErrorNotice errors={validationErrors} />
+
+    <EditAccount userInput={userInput} />
+
+    <div class="form-controls">
+      <button class="primary" type="submit">Create</button>
+    </div>
+  </form>
+</Layout>

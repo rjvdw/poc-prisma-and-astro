@@ -1,0 +1,16 @@
+---
+type Props = {
+  account: {
+    id: string
+    description: string
+    currency: string
+  }
+  showCurrency?: boolean | undefined
+}
+
+const { account, showCurrency } = Astro.props
+---
+
+<a href={`/account/${account.id}`}>
+  <slot>{account.description}{showCurrency ? ` (${account.currency})` : ''}</slot>
+</a>

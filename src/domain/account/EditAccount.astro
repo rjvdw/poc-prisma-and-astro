@@ -1,0 +1,46 @@
+---
+import type { Account } from '@prisma/client'
+import DataTable from '$components/DataTable'
+import { formatIban } from '$lib/iban'
+import type { UserInput } from '$lib/validation/Validator'
+import type { AccountData } from './AccountService'
+
+type Props = {
+  userInput?: UserInput<AccountData>
+  account?: Account
+}
+
+const { userInput, account } = Astro.props
+
+const merged = {
+  ...account,
+  ...userInput,
+}
+---
+
+<DataTable>
+  <tr>
+    <th><label for="account:description">Description</label></th>
+    <td>
+      <input id="account:description" name="description" type="text" value={merged.description} required />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="account:iban">IBAN</label></th>
+    <td>
+      <input id="account:iban" name="iban" type="text" value={merged.iban ? formatIban(merged.iban) : ''} />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="account:currency">Currency</label></th>
+    <td>
+      <input id="account:currency" name="currency" type="text" value={merged.currency} required />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="account:active">Active</label></th>
+    <td>
+      <input id="account:active" name="active" type="checkbox" value="1" checked={merged.active ?? true} />
+    </td>
+  </tr>
+</DataTable>

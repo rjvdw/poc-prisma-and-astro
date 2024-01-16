@@ -6,3 +6,13 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Account {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  iban        String? @unique @db.VarChar(34)
+  description String
+  currency    String  @db.Char(3)
+  active      Boolean @default(true)
+
+  @@map("account")
+}

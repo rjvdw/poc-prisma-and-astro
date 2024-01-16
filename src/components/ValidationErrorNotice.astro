@@ -1,0 +1,24 @@
+---
+import type { ValidationError } from '$lib/validation'
+
+type Props = {
+  errors: ValidationError[]
+}
+
+const { errors } = Astro.props
+---
+
+{
+  errors.length !== 0 && (
+    <div>
+      <p>Validation errors:</p>
+      <ul>
+        {errors.map(({ field, validationError }) => (
+          <li>
+            {field ? `${field}: ` : ''} {validationError}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

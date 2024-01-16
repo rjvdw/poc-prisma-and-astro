@@ -94,3 +94,9 @@ button {
   padding: 0.5rem;
   font-size: inherit;
 }
+
+.form-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 1ch;
+}

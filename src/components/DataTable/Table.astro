@@ -1,0 +1,42 @@
+<table>
+  <thead>
+    <slot name="thead" />
+  </thead>
+
+  <tbody>
+    <slot />
+  </tbody>
+
+  <tfoot>
+    <slot name="tfoot" />
+  </tfoot>
+</table>
+
+<style>
+  table {
+    margin-block: 1rem;
+    border-collapse: collapse;
+
+    --table-border: thin solid var(--table-border-color);
+    --table-thead-separator: medium;
+  }
+
+  table > * > :global(tr > th) {
+    font-weight: bold;
+  }
+
+  table > * > :global(tr > :is(th, td)) {
+    padding-block: 0.5rem;
+    padding-inline: 1rem 2.5rem;
+    text-align: start;
+    border-block-end: var(--table-border);
+  }
+
+  thead > :global(tr:last-of-type > :is(th, td)) {
+    border-block-end-width: var(--table-thead-separator);
+  }
+
+  thead:not(:has(*)) + tbody > :global(tr:first-of-type > :is(th, td)) {
+    border-block-start: var(--table-border);
+  }
+</style>

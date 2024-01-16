@@ -1,0 +1,30 @@
+---
+import type { Account } from '@prisma/client'
+import DataTable from '$components/DataTable'
+import { formatIban } from '$lib/iban'
+
+type Props = {
+  account: Account
+}
+
+const { account } = Astro.props
+---
+
+<DataTable>
+  <tr>
+    <th>Description</th>
+    <td>{account.description}</td>
+  </tr>
+  <tr>
+    <th>IBAN</th>
+    <td>{account.iban ? formatIban(account.iban) : '-'}</td>
+  </tr>
+  <tr>
+    <th>Currency</th>
+    <td>{account.currency}</td>
+  </tr>
+  <tr>
+    <th>Active</th>
+    <td>{account.active ? 'Yes' : 'No'}</td>
+  </tr>
+</DataTable>
