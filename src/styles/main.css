@@ -1,0 +1,96 @@
+/*****
+ * Theming
+ */
+:root {
+  --base-background-color: #222;
+  --base-foreground-color: #eee;
+  --base-font-family: sans-serif;
+  --base-link-color: #337ab7;
+  --base-link-color-hover: #23527c;
+
+  --headers-font-family: var(--base-font-family);
+
+  --table-border-color: #aaa;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --base-background-color: #fff;
+    --base-foreground-color: #111;
+
+    --table-border-color: #666;
+  }
+}
+
+/*****
+ * Base styling
+ */
+body {
+  font-family: var(--base-font-family);
+  color: var(--base-foreground-color);
+  background-color: var(--base-background-color);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*****
+ * Typography
+ */
+a {
+  color: var(--base-link-color);
+}
+
+a:hover,
+a:focus {
+  color: var(--base-link-color-hover);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  padding: 0;
+  margin-inline: 0;
+  font-family: var(--headers-font-family);
+  font-weight: bold;
+}
+
+h1 {
+  margin-block: 1.5rem 0.75rem;
+  font-size: 2rem;
+}
+
+h2 {
+  margin-block: 1.5rem 0.75rem;
+  font-size: 1.75rem;
+}
+
+p {
+  padding: 0;
+  margin-block: 0 0.75rem;
+  margin-inline: 0;
+}
+
+ol,
+ul {
+  margin-block: 0 0.75rem;
+}
+
+li + li {
+  margin-block-start: 1rem;
+}
+
+/*****
+ * Forms
+ */
+textarea,
+input,
+select,
+button {
+  padding: 0.5rem;
+  font-size: inherit;
+}

@@ -1,0 +1,41 @@
+{
+  "name": "personal-finance",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check && npm run check:stylelint && npm run check:prettier && npm run check:prisma",
+    "check:stylelint": "stylelint --allow-empty-input -f verbose 'src/**/*.{css,astro}'",
+    "check:prettier": "prettier --check . 'src/**/*.astro'",
+    "check:prisma": "prisma validate",
+    "fix": "npm run fix:stylelint && npm run fix:prettier && npm run fix:prisma",
+    "fix:stylelint": "npm run check:stylelint -- --fix",
+    "fix:prettier": "prettier --write . 'src/**/*.astro'",
+    "fix:prisma": "prisma format"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.4.1",
+    "@astrojs/node": "^8.0.0",
+    "@prisma/client": "^5.8.1",
+    "astro": "^4.2.2",
+    "husky": "^8.0.3",
+    "prisma": "^5.8.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.7",
+    "prettier": "^3.2.4",
+    "prettier-plugin-astro": "^0.13.0",
+    "stylelint": "^16.2.0",
+    "stylelint-config-html": "^1.1.0",
+    "stylelint-config-recess-order": "^4.4.0"
+  },
+  "prisma": {
+    "schema": "src/db/schema.prisma"
+  }
+}
