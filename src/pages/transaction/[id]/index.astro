@@ -1,0 +1,28 @@
+---
+import ViewTransaction from '$domain/transaction/ViewTransaction.astro'
+import Layout from '$layouts/Base.astro'
+import { getResourceById } from '$lib/page-helpers'
+import { isValidUuid } from '$lib/uuid'
+
+const { id } = Astro.params
+const { transactionService } = Astro.locals
+const transaction = await getResourceById(id, transactionService.get, isValidUuid)
+---
+
+<Layout title="transaction">
+  <h1>Transaction</h1>
+
+  {
+    transaction instanceof Error ? (
+      <p>{transaction.message}</p>
+    ) : (
+      <>
+        <ViewTransaction transaction={transaction} />
+
+        <p>
+          <a href={`/transaction/${id}/edit`}>Edit</a>
+        </p>
+      </>
+    )
+  }
+</Layout>

@@ -1,10 +1,11 @@
 ---
-import type { Account } from '@prisma/client'
 import DataTable from '$components/DataTable'
+import type { AsyncReturnType } from '$lib/AsyncReturnType'
 import { formatIban } from '$lib/iban'
+import type { AccountService } from './AccountService'
 
 type Props = {
-  account: Account
+  account: NonNullable<AsyncReturnType<AccountService['get']>>
 }
 
 const { account } = Astro.props
@@ -26,5 +27,9 @@ const { account } = Astro.props
   <tr>
     <th>Active</th>
     <td>{account.active ? 'Yes' : 'No'}</td>
+  </tr>
+  <tr>
+    <th>Transactions</th>
+    <td>{account._count.transactions}</td>
   </tr>
 </DataTable>

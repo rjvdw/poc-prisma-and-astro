@@ -5,5 +5,6 @@ declare namespace App {
     prisma: readonly import('@prisma/client').PrismaClient
     accountService: readonly import('$domain/account/AccountService').AccountService
     categoryService: readonly import('$domain/category/CategoryService').CategoryService
+    transactionService: readonly import('$domain/transaction/TransactionService').TransactionService
   }
 }

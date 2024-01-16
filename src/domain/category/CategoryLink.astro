@@ -1,14 +1,23 @@
 ---
 type Props = {
-  category: {
-    id: string
-    description: string
-  }
+  category?:
+    | {
+        id: string
+        description: string
+      }
+    | undefined
+    | null
 }
 
 const { category } = Astro.props
 ---
 
-<a href={`/category/${category.id}`}>
-  <slot>{category.description}</slot>
-</a>
+{
+  category ? (
+    <a href={`/category/${category.id}`}>
+      <slot>{category.description}</slot>
+    </a>
+  ) : (
+    '-'
+  )
+}

@@ -1,9 +1,10 @@
 ---
-import type { Category } from '@prisma/client'
 import DataTable from '$components/DataTable'
+import type { AsyncReturnType } from '$lib/AsyncReturnType'
+import type { CategoryService } from './CategoryService'
 
 type Props = {
-  category: Category
+  category: NonNullable<AsyncReturnType<CategoryService['get']>>
 }
 
 const { category } = Astro.props
@@ -13,5 +14,9 @@ const { category } = Astro.props
   <tr>
     <th>Description</th>
     <td>{category.description}</td>
+  </tr>
+  <tr>
+    <th>Transactions</th>
+    <td>{category._count.transactions}</td>
   </tr>
 </DataTable>

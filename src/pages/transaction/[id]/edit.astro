@@ -1,0 +1,69 @@
+---
+import ValidationErrorNotice from '$components/ValidationErrorNotice.astro'
+import type { TransactionData } from '$domain/transaction/TransactionService'
+import { TransactionValidator } from '$domain/transaction/TransactionValidator'
+import EditTransaction from '$domain/transaction/EditTransaction.astro'
+import Layout from '$layouts/Base.astro'
+import { getResourceById } from '$lib/page-helpers'
+import { isValidUuid } from '$lib/uuid'
+import { ValidationError, type UserInput } from '$lib/validation'
+
+const { id } = Astro.params
+const { transactionService, accountService, categoryService } = Astro.locals
+const transaction = await getResourceById(id, transactionService.get, isValidUuid)
+let userInput: UserInput<TransactionData> = {}
+let validationErrors: ValidationError[] = []
+
+const accounts = await accountService.list()
+const categories = await categoryService.list()
+
+if (!(transaction instanceof Error) && Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    if (formData.get('action') === 'delete') {
+      await transactionService.delete(transaction.id)
+      return Astro.redirect('/')
+    }
+
+    const validationResults = TransactionValidator.parse(formData, { accounts, categories })
+    userInput = validationResults.userInput
+
+    if (validationResults.success) {
+      // @ts-ignore False positive (ts6133)
+      const saved = await transactionService.update(transaction.id, validationResults.parsed)
+
+      return Astro.redirect(`/transaction/${saved.id}`)
+    }
+
+    validationErrors = validationResults.errors
+  } catch (err) {
+    validationErrors.push(ValidationError.ofCaught(err))
+  }
+}
+---
+
+<Layout title="transaction">
+  <h1>Transaction</h1>
+
+  {
+    transaction instanceof Error ? (
+      <p>{transaction.message}</p>
+    ) : (
+      <form method="post" action={`/transaction/${id}/edit`}>
+        <ValidationErrorNotice errors={validationErrors} />
+
+        <EditTransaction transaction={transaction} userInput={userInput} accounts={accounts} categories={categories} />
+
+        <div class="form-controls">
+          <button class="primary" type="submit" name="action" value="update">
+            Update
+          </button>
+          <button class="danger" type="submit" name="action" value="delete" formnovalidate>
+            Delete
+          </button>
+        </div>
+      </form>
+    )
+  }
+</Layout>

@@ -11,11 +11,21 @@ export class AccountService {
 
   list = async () =>
     this.#prisma.account.findMany({
+      include: {
+        _count: {
+          select: { transactions: true },
+        },
+      },
       orderBy: [{ active: 'desc' }, { description: 'asc' }],
     })
 
   get = async (id: string) =>
     this.#prisma.account.findUnique({
+      include: {
+        _count: {
+          select: { transactions: true },
+        },
+      },
       where: { id },
     })
 

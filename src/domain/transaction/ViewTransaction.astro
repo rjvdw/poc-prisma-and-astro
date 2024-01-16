@@ -1,0 +1,63 @@
+---
+import Currency from '$components/Currency.astro'
+import DataTable from '$components/DataTable'
+import AccountLink from '$domain/account/AccountLink.astro'
+import CategoryLink from '$domain/category/CategoryLink.astro'
+import type { AsyncReturnType } from '$lib/AsyncReturnType'
+import { formatDate } from '$lib/dateTime'
+import { formatIban } from '$lib/iban'
+import type { TransactionService } from './TransactionService'
+
+type Props = {
+  transaction: NonNullable<AsyncReturnType<TransactionService['get']>>
+}
+
+const { transaction } = Astro.props
+---
+
+<DataTable>
+  <tr>
+    <th>Account</th>
+    <td><AccountLink account={transaction.account} showCurrency /></td>
+  </tr>
+  <tr>
+    <th>Counterparty</th>
+    <td>{transaction.counterparty}</td>
+  </tr>
+  <tr>
+    <th>Counterparty IBAN</th>
+    <td>{transaction.counterpartyIban ? formatIban(transaction.counterpartyIban) : '-'}</td>
+  </tr>
+  <tr>
+    <th>Amount</th>
+    <td>
+      <Currency amount={transaction.amount} currency={transaction.account.currency} />
+    </td>
+  </tr>
+  <tr>
+    <th>Original amount</th>
+    <td>
+      {
+        transaction.originalAmount && transaction.originalCurrency ? (
+          <Currency amount={transaction.originalAmount} currency={transaction.originalCurrency} />
+        ) : (
+          '-'
+        )
+      }
+    </td>
+  </tr>
+  <tr>
+    <th>Date</th>
+    <td>{formatDate(transaction.date)}</td>
+  </tr>
+  <tr>
+    <th>Description</th>
+    <td>{transaction.description ?? '-'}</td>
+  </tr>
+  <tr>
+    <th>Category</th>
+    <td>
+      <CategoryLink category={transaction.category} />
+    </td>
+  </tr>
+</DataTable>

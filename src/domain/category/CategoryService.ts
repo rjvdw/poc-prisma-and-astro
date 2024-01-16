@@ -11,11 +11,21 @@ export class CategoryService {
 
   list = async () =>
     this.#prisma.category.findMany({
+      include: {
+        _count: {
+          select: { transactions: true },
+        },
+      },
       orderBy: [{ description: 'asc' }],
     })
 
   get = async (id: string) =>
     this.#prisma.category.findUnique({
+      include: {
+        _count: {
+          select: { transactions: true },
+        },
+      },
       where: { id },
     })
 

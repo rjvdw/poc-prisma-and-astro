@@ -1,7 +1,55 @@
 ---
+import Currency from '$components/Currency.astro'
+import DataTable from '$components/DataTable'
+import AccountLink from '$domain/account/AccountLink.astro'
+import CategoryLink from '$domain/category/CategoryLink.astro'
 import Layout from '$layouts/Base.astro'
+import { formatDate } from '$lib/dateTime'
+
+const { transactionService } = Astro.locals
+const transactions = await transactionService.list()
 ---
 
 <Layout>
   <h1>Home</h1>
+
+  {
+    transactions.length > 0 ? (
+      <DataTable responsive nowrap>
+        <tr slot="thead">
+          <th>Date</th>
+          <th>Account</th>
+          <th>Counterparty</th>
+          <th>Amount</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th />
+        </tr>
+
+        {transactions.map((transaction) => (
+          <tr>
+            <td>{formatDate(transaction.date)}</td>
+            <td>
+              <AccountLink account={transaction.account} />
+            </td>
+            <td>{transaction.counterparty}</td>
+            <td>
+              <Currency amount={transaction.amount} currency={transaction.account.currency} />
+            </td>
+            <td>{transaction.description ?? '-'}</td>
+            <td>
+              <CategoryLink category={transaction.category} />
+            </td>
+            <td>
+              <a href={`/transaction/${transaction.id}`}>Details</a>
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+    ) : (
+      <p>No transactions created yet</p>
+    )
+  }
+
+  <p><a href="/transaction/new">Create new transaction</a></p>
 </Layout>

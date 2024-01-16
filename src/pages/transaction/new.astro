@@ -1,0 +1,49 @@
+---
+import ValidationErrorNotice from '$components/ValidationErrorNotice.astro'
+import type { TransactionData } from '$domain/transaction/TransactionService'
+import { TransactionValidator } from '$domain/transaction/TransactionValidator'
+import EditTransaction from '$domain/transaction/EditTransaction.astro'
+import Layout from '$layouts/Base.astro'
+import { ValidationError, type UserInput } from '$lib/validation'
+
+const { transactionService, accountService, categoryService } = Astro.locals
+let userInput: UserInput<TransactionData> = {}
+let validationErrors: ValidationError[] = []
+
+const accounts = await accountService.list()
+const categories = await categoryService.list()
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    const validationResults = TransactionValidator.parse(formData, { accounts, categories })
+    userInput = validationResults.userInput
+
+    if (validationResults.success) {
+      // @ts-ignore False positive (ts6133)
+      const saved = await transactionService.create(validationResults.parsed)
+
+      return Astro.redirect(`/transaction/${saved.id}`)
+    }
+
+    validationErrors = validationResults.errors
+  } catch (err) {
+    validationErrors.push(ValidationError.ofCaught(err))
+  }
+}
+---
+
+<Layout title="new transaction">
+  <h1>New Transaction</h1>
+
+  <form method="post" action="/transaction/new">
+    <ValidationErrorNotice errors={validationErrors} />
+
+    <EditTransaction userInput={userInput} accounts={accounts} categories={categories} />
+
+    <div class="form-controls">
+      <button class="primary" type="submit">Create</button>
+    </div>
+  </form>
+</Layout>

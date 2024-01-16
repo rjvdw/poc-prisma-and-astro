@@ -8,18 +8,37 @@ datasource db {
 }
 
 model Account {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  iban        String? @unique @db.VarChar(34)
-  description String
-  currency    String  @db.Char(3)
-  active      Boolean @default(true)
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  iban         String?       @unique @db.VarChar(34)
+  description  String
+  currency     String        @db.Char(3)
+  transactions Transaction[]
+  active       Boolean       @default(true)
 
   @@map("account")
 }
 
 model Category {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  description String
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description  String
+  transactions Transaction[]
 
   @@map("category")
+}
+
+model Transaction {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  account          Account   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  accountId        String    @map("account_id") @db.Uuid
+  counterparty     String
+  counterpartyIban String?   @map("counterparty_iban") @db.VarChar(34)
+  amount           Decimal   @db.Money
+  originalCurrency String?   @map("original_currency") @db.Char(3)
+  originalAmount   Decimal?  @map("original_amount") @db.Money
+  date             DateTime  @db.Date
+  description      String?
+  category         Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId       String?   @map("category_id") @db.Uuid
+
+  @@map("transaction")
 }

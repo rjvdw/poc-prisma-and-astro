@@ -1,0 +1,130 @@
+---
+import type { Account, Category, Transaction } from '@prisma/client'
+import type { Decimal } from '@prisma/client/runtime/library'
+import DataTable from '$components/DataTable'
+import type { UserInput } from '$lib/validation/Validator'
+import { formatIban } from '$lib/iban'
+import type { TransactionData } from './TransactionService'
+import { formatCurrency } from '$lib/currency'
+
+type Props = {
+  userInput?: UserInput<TransactionData>
+  transaction?: Transaction
+  accounts: Account[]
+  categories: Category[]
+}
+
+const { userInput, transaction, accounts, categories } = Astro.props
+
+const merged = {
+  ...transaction,
+  ...userInput,
+}
+
+function formatUserInputAmount(amount: string | Decimal | null | undefined): string {
+  if (typeof amount === 'string') {
+    return amount
+  }
+
+  if (amount === null || amount === undefined) {
+    return ''
+  }
+
+  return formatCurrency(amount.toNumber())
+}
+
+function formatUserInputDate(date: string | Date | null | undefined): string {
+  if (typeof date === 'string') {
+    return date
+  }
+
+  return date?.toISOString().split('T')[0] ?? ''
+}
+---
+
+<DataTable>
+  <tr>
+    <th><label for="transaction:account">Account</label></th>
+    <td>
+      <select id="transaction:account" name="accountId" required>
+        <option value="">Pick an account</option>
+        {
+          accounts.map((account) => (
+            <option value={account.id}>
+              {account.description} ({account.currency})
+            </option>
+          ))
+        }
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:counterparty">Counterparty</label></th>
+    <td>
+      <input id="transaction:counterparty" name="counterparty" type="text" value={merged.counterparty} required />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:counterpartyIban">Counterparty IBAN</label></th>
+    <td>
+      <input
+        id="transaction:counterpartyIban"
+        name="counterpartyIban"
+        type="text"
+        value={merged.counterpartyIban ? formatIban(merged.counterpartyIban) : ''}
+      />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:amount">Amount</label></th>
+    <td>
+      <input
+        id="transaction:amount"
+        name="amount"
+        type="text"
+        value={formatUserInputAmount(merged.amount)}
+        inputmode="decimal"
+        required
+      />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:originalCurrency">Original currency</label></th>
+    <td>
+      <input id="transaction:originalCurrency" name="originalCurrency" type="text" value={merged.originalCurrency} />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:originalAmount">Original amount</label></th>
+    <td>
+      <input
+        id="transaction:originalAmount"
+        name="originalAmount"
+        type="text"
+        value={formatUserInputAmount(merged.originalAmount)}
+        inputmode="decimal"
+      />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:date">Date</label></th>
+    <td>
+      <input id="transaction:date" name="date" type="date" value={formatUserInputDate(merged.date)} required />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:description">Description</label></th>
+    <td>
+      <input id="transaction:description" name="description" type="text" value={merged.description} />
+    </td>
+  </tr>
+  <tr>
+    <th><label for="transaction:category">Category</label></th>
+    <td>
+      <select id="transaction:category" name="categoryId">
+        <option value=""></option>
+        {categories.map((category) => <option value={category.id}>{category.description}</option>)}
+      </select>
+    </td>
+  </tr>
+</DataTable>

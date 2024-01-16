@@ -15,6 +15,7 @@ const categories = await categoryService.list()
       <DataTable responsive nowrap>
         <tr slot="thead">
           <th>Description</th>
+          <th>Transactions</th>
         </tr>
 
         {categories.map((category) => (
@@ -22,6 +23,7 @@ const categories = await categoryService.list()
             <td>
               <CategoryLink category={category} />
             </td>
+            <td>{category._count.transactions}</td>
           </tr>
         ))}
       </DataTable>

@@ -1,0 +1,22 @@
+---
+import { formatCurrency } from '$lib/currency'
+import type { Decimal } from '@prisma/client/runtime/library'
+
+type Props = {
+  amount: number | Decimal
+  currency: string
+}
+
+let { amount, currency } = Astro.props
+if (typeof amount !== 'number') {
+  amount = amount.toNumber()
+}
+---
+
+<span>{formatCurrency(amount, currency)}</span>
+
+<style>
+  span {
+    white-space: nowrap;
+  }
+</style>

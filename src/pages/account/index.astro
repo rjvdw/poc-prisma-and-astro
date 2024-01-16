@@ -19,6 +19,7 @@ const accounts = await accountService.list()
           <th>IBAN</th>
           <th>Currency</th>
           <th>Active</th>
+          <th>Transactions</th>
         </tr>
 
         {accounts.map((account) => (
@@ -29,6 +30,7 @@ const accounts = await accountService.list()
             <td>{account.iban ? formatIban(account.iban) : '-'}</td>
             <td>{account.currency}</td>
             <td>{account.active ? 'Yes' : 'No'}</td>
+            <td>{account._count.transactions}</td>
           </tr>
         ))}
       </DataTable>
