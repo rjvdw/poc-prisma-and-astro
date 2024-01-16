@@ -1,0 +1,34 @@
+---
+import Layout from '$layouts/Base.astro'
+import CategoryLink from '$domain/category/CategoryLink.astro'
+import DataTable from '$components/DataTable'
+
+const { categoryService } = Astro.locals
+const categories = await categoryService.list()
+---
+
+<Layout title="categories">
+  <h1>Categories</h1>
+
+  {
+    categories.length > 0 ? (
+      <DataTable responsive nowrap>
+        <tr slot="thead">
+          <th>Description</th>
+        </tr>
+
+        {categories.map((category) => (
+          <tr>
+            <td>
+              <CategoryLink category={category} />
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+    ) : (
+      <p>No categories created yet</p>
+    )
+  }
+
+  <p><a href="/category/new">Create new category</a></p>
+</Layout>

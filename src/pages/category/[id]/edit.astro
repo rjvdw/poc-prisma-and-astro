@@ -1,0 +1,66 @@
+---
+import ValidationErrorNotice from '$components/ValidationErrorNotice.astro'
+import type { CategoryData } from '$domain/category/CategoryService'
+import { CategoryValidator } from '$domain/category/CategoryValidator'
+import EditCategory from '$domain/category/EditCategory.astro'
+import Layout from '$layouts/Base.astro'
+import { getResourceById } from '$lib/page-helpers'
+import { isValidUuid } from '$lib/uuid'
+import { ValidationError, type UserInput } from '$lib/validation'
+
+const { id } = Astro.params
+const { categoryService } = Astro.locals
+const category = await getResourceById(id, categoryService.get, isValidUuid)
+let userInput: UserInput<CategoryData> = {}
+let validationErrors: ValidationError[] = []
+
+if (!(category instanceof Error) && Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    if (formData.get('action') === 'delete') {
+      await categoryService.delete(category.id)
+      return Astro.redirect('/category')
+    }
+
+    const validationResults = CategoryValidator.parse(formData)
+    userInput = validationResults.userInput
+
+    if (validationResults.success) {
+      // @ts-ignore False positive (ts6133)
+      const saved = await categoryService.update(category.id, validationResults.parsed)
+
+      return Astro.redirect(`/category/${saved.id}`)
+    }
+
+    validationErrors = validationResults.errors
+  } catch (err) {
+    validationErrors.push(ValidationError.ofCaught(err))
+  }
+}
+---
+
+<Layout title="category">
+  <h1>Category</h1>
+
+  {
+    category instanceof Error ? (
+      <p>{category.message}</p>
+    ) : (
+      <form method="post" action={`/category/${id}/edit`}>
+        <ValidationErrorNotice errors={validationErrors} />
+
+        <EditCategory category={category} userInput={userInput} />
+
+        <div class="form-controls">
+          <button class="primary" type="submit" name="action" value="update">
+            Update
+          </button>
+          <button class="danger" type="submit" name="action" value="delete" formnovalidate>
+            Delete
+          </button>
+        </div>
+      </form>
+    )
+  }
+</Layout>

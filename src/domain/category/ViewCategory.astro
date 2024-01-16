@@ -1,0 +1,17 @@
+---
+import type { Category } from '@prisma/client'
+import DataTable from '$components/DataTable'
+
+type Props = {
+  category: Category
+}
+
+const { category } = Astro.props
+---
+
+<DataTable>
+  <tr>
+    <th>Description</th>
+    <td>{category.description}</td>
+  </tr>
+</DataTable>

@@ -1,0 +1,46 @@
+---
+import ValidationErrorNotice from '$components/ValidationErrorNotice.astro'
+import type { CategoryData } from '$domain/category/CategoryService'
+import { CategoryValidator } from '$domain/category/CategoryValidator'
+import EditCategory from '$domain/category/EditCategory.astro'
+import Layout from '$layouts/Base.astro'
+import { ValidationError, type UserInput } from '$lib/validation'
+
+const { categoryService } = Astro.locals
+let userInput: UserInput<CategoryData> = {}
+let validationErrors: ValidationError[] = []
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData()
+
+    const validationResults = CategoryValidator.parse(formData)
+    userInput = validationResults.userInput
+
+    if (validationResults.success) {
+      // @ts-ignore False positive (ts6133)
+      const saved = await categoryService.create(validationResults.parsed)
+
+      return Astro.redirect(`/category/${saved.id}`)
+    }
+
+    validationErrors = validationResults.errors
+  } catch (err) {
+    validationErrors.push(ValidationError.ofCaught(err))
+  }
+}
+---
+
+<Layout title="new category">
+  <h1>New Category</h1>
+
+  <form method="post" action="/category/new">
+    <ValidationErrorNotice errors={validationErrors} />
+
+    <EditCategory userInput={userInput} />
+
+    <div class="form-controls">
+      <button class="primary" type="submit">Create</button>
+    </div>
+  </form>
+</Layout>

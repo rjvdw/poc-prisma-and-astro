@@ -1,0 +1,14 @@
+---
+type Props = {
+  category: {
+    id: string
+    description: string
+  }
+}
+
+const { category } = Astro.props
+---
+
+<a href={`/category/${category.id}`}>
+  <slot>{category.description}</slot>
+</a>

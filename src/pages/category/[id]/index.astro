@@ -1,0 +1,28 @@
+---
+import ViewCategory from '$domain/category/ViewCategory.astro'
+import Layout from '$layouts/Base.astro'
+import { getResourceById } from '$lib/page-helpers'
+import { isValidUuid } from '$lib/uuid'
+
+const { id } = Astro.params
+const { categoryService } = Astro.locals
+const category = await getResourceById(id, categoryService.get, isValidUuid)
+---
+
+<Layout title="category">
+  <h1>Category</h1>
+
+  {
+    category instanceof Error ? (
+      <p>{category.message}</p>
+    ) : (
+      <>
+        <ViewCategory category={category} />
+
+        <p>
+          <a href={`/category/${id}/edit`}>Edit</a>
+        </p>
+      </>
+    )
+  }
+</Layout>

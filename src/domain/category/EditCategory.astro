@@ -1,0 +1,27 @@
+---
+import type { Category } from '@prisma/client'
+import DataTable from '$components/DataTable'
+import type { UserInput } from '$lib/validation/Validator'
+import type { CategoryData } from './CategoryService'
+
+type Props = {
+  userInput?: UserInput<CategoryData>
+  category?: Category
+}
+
+const { userInput, category } = Astro.props
+
+const merged = {
+  ...category,
+  ...userInput,
+}
+---
+
+<DataTable>
+  <tr>
+    <th><label for="category:description">Description</label></th>
+    <td>
+      <input id="category:description" name="description" type="text" value={merged.description} required />
+    </td>
+  </tr>
+</DataTable>
